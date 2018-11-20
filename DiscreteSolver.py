@@ -253,7 +253,7 @@ def playGame(env, agent, env_max_score):
 
                 # Save the last episodes
                 if e > EPISODES - 11:
-                    env = gym.wrappers.Monitor(env, "./tmp/" + ENV_NAME, force=True, video_callable = None)
+                    env = gym.wrappers.Monitor(env, "./tmp/" + ENV_NAME, force=True, video_callable = None, resume = True)
 
                 # Greedy DQN
                 if (score >= max_score and agent.train):
