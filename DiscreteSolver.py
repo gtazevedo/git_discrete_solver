@@ -48,8 +48,8 @@ from sysconfig import get_path
 EPISODES = 3000
 HIDDEN_LAYER = 50 # Original was 24 and 50 has a good score
 HIDDEN_LAYER2 = 50
-ENV_NAME = "CartPole-v0" # CartPole-v0 | CartPole-v1 | MountainCar-v0 | LunarLander-v2 | Acrobot-v1
-NOTE = "Gif_Reward_test_Batch_Opt_Adam_2HL_50_50_Reward_Clipped_withBonus_Ep_3k_Replay_actio_times_40k_Train_action_times_5k"
+ENV_NAME = "LunarLander-v2" # CartPole-v0 | CartPole-v1 | MountainCar-v0 | LunarLander-v2 | Acrobot-v1
+NOTE = "lr_0001_gamma_999_Reward_test_Batch_Opt_Adam_2HL_50_50_Reward_Clipped_withBonus_Ep_3k_Replay_actio_times_40k_Train_action_times_5k"
 # Next tests are ep 2k replay 10k train 5k adamax lr 0.002 | ep 2k replay 10k train 1k adam lr 0.001
 # | ep 2k replay 10k train 1k adamax lr 0.002
 
@@ -65,8 +65,8 @@ class DoubleDQNAgent:
         self.action_size = action_size
 
         # These are hyper parameters for the Double DQN
-        self.discount_factor = 0.99  # also known as gamma
-        self.learning_rate = 0.001  # 0.001 for Adam, 0.002 if Nadam or Adamax
+        self.discount_factor = 0.999  # also known as gamma
+        self.learning_rate = 0.0001  # 0.001 for Adam, 0.002 if Nadam or Adamax
         if (self.train):
             self.epsilon = 1.0  # if we are training, exploration rate is set to max
         else:
