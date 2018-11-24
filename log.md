@@ -11,6 +11,7 @@ Deseja-se fazer:
 - [ ] Implementar este código para visão computacional por análise de pixels(?)
 - [ ] Para o gráfico implementar dois vetores, um que adiciona 0 para valores antes do treinamento e outro que adiciona 0 para valores depois do treinamento e ambos não plotam valores zerados. Outra opção é fazer esta diferença para o caso de objetivo atingido ou não
 - [ ] Rodar o CartPole-v0 com os pesos salvos do CartPole-v1 e vice versa e observar o desempenho
+- [ ] Adicionar um gráfico com a pontuação média dos ultimos 100 episódios. Fazer isso criando um deque de 100 unidades
 
 **As pontuações buscadas em cada um dos ambientes são mostradas na tabela abaixo**
 <table>
@@ -103,7 +104,7 @@ Deseja-se fazer:
 </table>
 *Este experimento fez com que fosse adotado o clipping de recompensa*
 
-Para o caso simulado utilizando uma HL de 50 com 1k de episódios e 10k de memória de replay e com treinamento iniciado após 4k de memória ser preenchida. Análise realizada apenas para o CartPole-v0
+4. Para o caso simulado utilizando uma HL de 50 com 1k de episódios e 10k de memória de replay e com treinamento iniciado após 4k de memória ser preenchida. Análise realizada apenas para o CartPole-v0
 <table>
   <thead>
     <tr>
@@ -125,7 +126,7 @@ Para o caso simulado utilizando uma HL de 50 com 1k de episódios e 10k de memó
   </tbody>
 </table>
 
-4. Para o caso simulado utilizando uma HL de 50 com Adam e lr 0.001 para 1000 episódios com 10k de memória de replay e 1000 de memória para se iniciar o treinamento.
+5. Para o caso simulado utilizando uma HL de 50 com Adam e lr 0.001 para 1000 episódios com 10k de memória de replay e 1000 de memória para se iniciar o treinamento.
 <table>
   <thead>
     <tr>
@@ -147,7 +148,7 @@ Para o caso simulado utilizando uma HL de 50 com 1k de episódios e 10k de memó
   </tbody>
 </table>
 
-5. Para o caso simulado utilizando uma HL de 50 com Adam e lr 0.001 para 1000 episódios com 10k de memória de replay e 4000 de memória para se iniciar o treinamento.
+6. Para o caso simulado utilizando uma HL de 50 com Adam e lr 0.001 para 1000 episódios com 10k de memória de replay e 4000 de memória para se iniciar o treinamento.
 <table>
   <thead>
     <tr>
@@ -169,7 +170,7 @@ Para o caso simulado utilizando uma HL de 50 com 1k de episódios e 10k de memó
   </tbody>
 </table>
 
-6. Para o caso simulado utilizando uma HL de 50 com Adam e lr 0.001 para 2000 episódios com 10k e treinamento iniciado após o uso de 5k de memória
+7. Para o caso simulado utilizando uma HL de 50 com Adam e lr 0.001 para 2000 episódios com 10k e treinamento iniciado após o uso de 5k de memória
 <table>
   <thead>
     <tr>
@@ -191,7 +192,7 @@ Para o caso simulado utilizando uma HL de 50 com 1k de episódios e 10k de memó
   </tbody>
 </table>
 
-7. Para o caso simulado utilizando uma HL de 50 com recompensa clipada com 2k de episódios e 10k de memória com treinamento iniciado após 5k de memória ser preenchido
+8. Para o caso simulado utilizando uma HL de 50 com recompensa clipada com 2k de episódios e 10k de memória com treinamento iniciado após 5k de memória ser preenchido
 <table>
   <thead>
     <tr>
@@ -213,7 +214,7 @@ Para o caso simulado utilizando uma HL de 50 com 1k de episódios e 10k de memó
   </tbody>
 </table>
 
-8. Para o caso simulado utilizando uma HL de 50 com recompensa clipada com 2k de episódios e treinamento iniciado após 1k de memória ser utilizado com 10k de memória máxima
+9. Para o caso simulado utilizando uma HL de 50 com recompensa clipada com 2k de episódios e treinamento iniciado após 1k de memória ser utilizado com 10k de memória máxima
 <table>
   <thead>
     <tr>
@@ -236,7 +237,7 @@ Para o caso simulado utilizando uma HL de 50 com 1k de episódios e 10k de memó
 </table>
 No geral, iniciar o treinamento após a memória atingir 5k aparenta aumentar a estabilidade de maneira significativa. Nenhum dos dois testes foram capazes de trazer resultados significativos para o LunarLander-v2
 
-9. Para o caso simulado utilizando otimizador Adamax com lr 0.002, uma HL de 50 com recompensa clipada com 2k de episódios e treinamento iniciado após 1k de memória ser utilizado com 10k de memória máxima
+10. Para o caso simulado utilizando otimizador Adamax com lr 0.002, uma HL de 50 com recompensa clipada com 2k de episódios e treinamento iniciado após 1k de memória ser utilizado com 10k de memória máxima
 <table>
   <thead>
     <tr>
@@ -258,7 +259,7 @@ No geral, iniciar o treinamento após a memória atingir 5k aparenta aumentar a 
   </tbody>
 </table>
 
-10. Para o caso simulado utilizando duas HL de 24 e recompensa clipada com 10k de memória máxima e treinamento iniciado em 5k de memória  com 2k de episódios.
+11. Para o caso simulado utilizando duas HL de 24 e recompensa clipada com 10k de memória máxima e treinamento iniciado em 5k de memória  com 2k de episódios.
 <table>
   <thead>
     <tr>
@@ -280,7 +281,7 @@ No geral, iniciar o treinamento após a memória atingir 5k aparenta aumentar a 
   </tbody>
 </table>
 
-11. Para o caso simulado utilizando duas HL de 24 e lr 0.0001 e gamma = 0.999 com recompensa clipada, 10k de memória máxima e treinamento iniciado em 5k de memória para 2k de episódios.
+12. Para o caso simulado utilizando duas HL de 24 e lr 0.0001 e gamma = 0.999 com recompensa clipada, 10k de memória máxima e treinamento iniciado em 5k de memória para 2k de episódios.
 <table>
   <thead>
     <tr>
@@ -302,7 +303,7 @@ No geral, iniciar o treinamento após a memória atingir 5k aparenta aumentar a 
   </tbody>
 </table>
 
-12. Para o caso simulado utilizando duas HL, uma de 128 e outra de 64 nesta respectiva ordem, com 50k de memória de replay e treinamento iniciado em 10k de memória, com 2,5k de episódios
+13. Para o caso simulado utilizando duas HL, uma de 128 e outra de 64 nesta respectiva ordem, com 50k de memória de replay e treinamento iniciado em 10k de memória, com 2,5k de episódios
 <table>
   <thead>
     <tr>
@@ -324,7 +325,7 @@ No geral, iniciar o treinamento após a memória atingir 5k aparenta aumentar a 
   </tbody>
 </table>
 
-13. Para o caso simulado utilizando duas Hl de 50, com recompensa clipada e uma recompensa bonus caso o objetivo proposto seja atingido para 2,5k de episódios com 50 de memória de replay com treinamento iniciado em 10k de memória.
+14. Para o caso simulado utilizando duas Hl de 50, com recompensa clipada e uma recompensa bonus caso o objetivo proposto seja atingido para 2,5k de episódios com 50 de memória de replay com treinamento iniciado em 10k de memória.
 <table>
   <thead>
     <tr>
@@ -346,7 +347,7 @@ No geral, iniciar o treinamento após a memória atingir 5k aparenta aumentar a 
   </tbody>
 </table>
 
-14. Para o caso de uma HL com 50, 2,5k episódios com 50k de memória e treinamento iniciado em 5k com recompensa clipada e bonus por se alcançar o objetivo
+15. Para o caso de uma HL com 50, 2,5k episódios com 50k de memória e treinamento iniciado em 5k com recompensa clipada e bonus por se alcançar o objetivo
 <table>
   <thead>
     <tr>
@@ -368,7 +369,7 @@ No geral, iniciar o treinamento após a memória atingir 5k aparenta aumentar a 
   </tbody>
 </table>
 
-15. Para o caso do otimizador Adam com duas HL de 24 e 2,5k episodios com 50k de memória e treinaento inciado em 10k de memória.
+16. Para o caso do otimizador Adam com duas HL de 24 e 2,5k episodios com 50k de memória e treinaento inciado em 10k de memória.
 <table>
   <thead>
     <tr>
@@ -386,6 +387,68 @@ No geral, iniciar o treinamento após a memória atingir 5k aparenta aumentar a 
 			<td>Conseguiu solucionar o ambiente porém apresentou uma quantidade muito elevada de oscilações</td>
 			<td>Conseguiu solucionar o ambiente, mas oscila com frequência próxima do resultado desejado, embora estas oscilações de pontuação sejam de baixa amplitude</td>
 			<td>Desempenho instável, incapaz de solucionar o ambiente, pontuação oscilante próximo ao 0</td>
+    </tr>
+  </tbody>
+</table>
+
+17. Para o caso do otimizador Adam com uma HL de 50 e 2,5k episodios com 50k de memória e treinaento inciado em 10k de memória.
+<table>
+  <thead>
+    <tr>
+      <th>CartPole-v0</th>
+      <th>CartPole-v1</th>
+      <th>MountainCar-v0</th>
+			<th>Acrobot-v1</th>
+			<th>LunarLander-v2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Conseguiu solucionar o ambiente, mas quando parecia estar apresentando uma estabilidade crescente, teve uma queda de desempenho considerável</td>
+      <td>Conseguiu apresentar ponto de solução do ambiente, mas com alta instabilidade</td>
+			<td>Conseguiu apresentar pontos de solução do ambiente, mas apresenta alta instabilidade</td>
+			<td>Oscilou com muita frequência em torno do objetivo estabelecido</td>
+			<td>Conseguiu atingir os 200 pontos uma única vez e então apresentou uma instabilidade muito grande entre 0 a 150 pontos</td>
+    </tr>
+  </tbody>
+</table>
+
+18. Para o caso do otimizador Adam com duas HL de 50 e 3k episodios com a memória de replay dada pela expressão 40k * action e o treinaento inciado em action * 5k de memória.
+<table>
+  <thead>
+    <tr>
+      <th>CartPole-v0</th>
+      <th>CartPole-v1</th>
+      <th>MountainCar-v0</th>
+			<th>Acrobot-v1</th>
+			<th>LunarLander-v2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Conseguiu solucionar o ambiente e apresentou uma estabilidade crescente com o número de episódios</td>
+      <td>Apresentou grande instabilidade para solucionar o ambiente</td>
+			<td>Conseguiu solucionar o ambiente mas apresentou certa instabilidade</td>
+			<td>Oscilou com determinada frequência ao redor da pontuação desejada</td>
+			<td>Inicialmente parecia estar aprendendo sobre o ambiente, mas então começou a rapidamente ter uma queda de desempenho e terminou com uma pontuação negativa</td>
+    </tr>
+  </tbody>
+</table>
+
+18. Para o caso do otimizador Adam com duas HL de 50 e 3k episodios com a memória de replay dada pela expressão 40k * action e o treinaento inciado em action * 5k de memória. Foi variado o lr para o LunarLander v2.
+<table>
+  <thead>
+    <tr>
+      <th>rl = 5e-5</th>
+      <th>rl = 0.0001</th>
+      <th>rl = 0.0001 e gamma = 0.999</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Teve um desempenho crescente, aprendeu a pousar a nave, mas não da forma desejada. Não foi capaz de atingir 200 pontos ou mais uma única vez</td>
+      <td>Atingiu 200 pontos ou mais algumas vezes, mas não conseguiu manter esta pontuação, aprendeu a pousar a nave mas não da forma desejada</td>
+			<td>Péssimo desempenho</td>
     </tr>
   </tbody>
 </table>
