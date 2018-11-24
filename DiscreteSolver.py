@@ -23,7 +23,6 @@
 # Plot decision boundary
 # args to choose stuff after is done
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Imports: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 import sys
 import gym
@@ -40,22 +39,25 @@ import matplotlib.pyplot as plt
 from keras.utils import plot_model
 import tensorflow as tf
 from sysconfig import get_path
+import argparse
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Notes: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Needs to implement argparse and organize the code in different files after dev
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Setup: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 EPISODES = 3000
-HIDDEN_LAYER = 50 # Original was 24 and 50 has a good score
+HIDDEN_LAYER = 50  # Original was 24 and 50 has a good score
 HIDDEN_LAYER2 = 50
-ENV_NAME = "LunarLander-v2" # CartPole-v0 | CartPole-v1 | MountainCar-v0 | LunarLander-v2 | Acrobot-v1
-NOTE = "lr_0001_gamma_999_Reward_test_Batch_Opt_Adam_2HL_50_50_Reward_Clipped_withBonus_Ep_3k_Replay_actio_times_40k_Train_action_times_5k"
+# ENV_NAME = "CartPole-v1"  # CartPole-v0 | CartPole-v1 | MountainCar-v0 | LunarLander-v2 | Acrobot-v1
+NOTE = "_Opt_Adam_2HL_50_50_Reward_Clipped_withBonus_Ep_3k_Replay_actionX40k_Train_actionX5k"
+
+
 # Next tests are ep 2k replay 10k train 5k adamax lr 0.002 | ep 2k replay 10k train 1k adam lr 0.001
 # | ep 2k replay 10k train 1k adamax lr 0.002
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Double DQN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class DoubleDQNAgent:
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, learning_rate):
         # If the network is already trained, set to False
         self.train = True
         # If its desired to see the env animation, set to True
@@ -65,8 +67,8 @@ class DoubleDQNAgent:
         self.action_size = action_size
 
         # These are hyper parameters for the Double DQN
-        self.discount_factor = 0.999  # also known as gamma
-        self.learning_rate = 0.0001  # 0.001 for Adam, 0.002 if Nadam or Adamax
+        self.discount_factor = 0.99  # also known as gamma
+        self.learning_rate = learning_rate  # 0.001 for Adam, 0.002 if Nadam or Adamax
         if (self.train):
             self.epsilon = 1.0  # if we are training, exploration rate is set to max
         else:
@@ -74,7 +76,7 @@ class DoubleDQNAgent:
         self.epsilon_decay = 0.999
         self.epsilon_min = 1e-6
         self.batch_size = 64
-        self.train_start = action_size* 5000  # when will we start training, maybe some higher numbers. Default is 1000
+        self.train_start = action_size * 5000  # when will we start training, maybe some higher numbers. Default is 1000
         # Create replay memory using deque
         self.memory = deque(maxlen=action_size * 40000)  # 2000 is default. Try some higher numbers
 
@@ -89,9 +91,10 @@ class DoubleDQNAgent:
     # State is input and Q value of each action is output of the network
     def build_model(self):
         model = Sequential()
-        model.add(Dense(HIDDEN_LAYER, input_dim=self.state_size, activation='relu', kernel_initializer='he_uniform'))
+        model.add(Dense(HIDDEN_LAYER, input_dim=self.state_size, activation='relu',
+                        kernel_initializer='he_uniform'))
         model.add(Dense(HIDDEN_LAYER, activation='relu', kernel_initializer='he_uniform'))
-        model.add(Dense(HIDDEN_LAYER2, activation = 'relu', kernel_initializer='he_uniform'))
+        model.add(Dense(HIDDEN_LAYER2, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(self.action_size, activation='linear', kernel_initializer='he_uniform'))
         model.summary()
         optimizer = Adam(lr=self.learning_rate)  # try Adamax, Adam and Nadam
@@ -146,7 +149,7 @@ class DoubleDQNAgent:
                 target[i][action[i]] = reward[i] + self.discount_factor * (target_val[i][a])
 
         # Choose the option to use the train_on_batch or fit function, should be the same
-        #self.model.fit(state, target, batch_size=self.batch_size, epochs=1, verbose=0)
+        # self.model.fit(state, target, batch_size=self.batch_size, epochs=1, verbose=0)
         self.model.train_on_batch(state, target)
 
     # Load the saved model
@@ -157,9 +160,8 @@ class DoubleDQNAgent:
     def save_model(self, name):
         self.model.save_weights(name)
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Run the env ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def playGame(env, agent, env_max_score):
+def playGame(env, agent, env_max_score, desired_env, learning_rate):
     # Variables for plotting
     scores, episodes, action_list, memory_list, marker, desired_score = [], [], [], [], [], []
     # Variable for saving the model
@@ -168,7 +170,7 @@ def playGame(env, agent, env_max_score):
     # If we are not training aka we are running, load the model
     if (not agent.train):
         print("Now we load the saved model")
-        agent.load_model("./save_model/" + NOTE + ENV_NAME + "_DDQN18.h5")
+        agent.load_model("./save_model/" + str(learning_rate) + NOTE + desired_env + "_DDQN18.h5")
 
     # If we are training:
     for e in range(EPISODES):
@@ -193,13 +195,13 @@ def playGame(env, agent, env_max_score):
             # try this instead of the above to see if we have any improvs
             if not done:
                 reward = reward
-            elif done and score >= (env_max_score-1):
+            elif done and score >= (env_max_score - 1):
                 reward += 500
             else:
                 reward += -500
 
             # Clip all positive rewards at 1 and all negative rewards at -1, leaving 0 rewards unchanged
-            reward= np.clip(reward, -1, 1) #Trying this
+            reward = np.clip(reward, -1, 1)  # Trying this
 
             # Save the sample <s, a, r, s'> to the replay memory
             agent.replay_memory(state, action, reward, next_state, done)
@@ -223,45 +225,51 @@ def playGame(env, agent, env_max_score):
                 marker.append(5000)
                 desired_score.append(env_max_score)
 
-                fig = plt.figure() # creates the figure
-                ax1 = fig.add_subplot(3, 1, 1) # creates the subplots
+                fig = plt.figure()  # creates the figure
+                ax1 = fig.add_subplot(3, 1, 1)  # creates the subplots
                 ax2 = fig.add_subplot(3, 1, 2)
                 ax3 = fig.add_subplot(3, 1, 3)
 
-                ax1.plot(episodes, scores, 'b-', lw = 0.5) # plots the agent score
+                ax1.plot(episodes, scores, 'b-', lw=0.5)  # plots the agent score
                 ax1.plot(episodes, desired_score, 'g-', lw=0.4)
-                ax2.scatter(episodes, action_list, facecolor = 'blue', cmap = plt.cm.get_cmap("winter"), alpha= 0.15)
-                ax3.scatter(episodes, scores, facecolor = 'blue', alpha = 0.15)
+                ax2.scatter(episodes, action_list, facecolor='blue', cmap=plt.cm.get_cmap("winter"),
+                            alpha=0.15)
+                ax3.scatter(episodes, scores, facecolor='blue', alpha=0.15)
 
-                ax1.set_title('Episode score')
-                ax2.set_title('Last action taken by episode')
-                ax3.set_title('Episode Score')
+                ax1.title.set_text('Episode score')
+                ax2.title.set_text('Last action taken by episode')
+                ax3.title.set_text('Episode Score')
 
-                fig.savefig("./save_graph/" + NOTE + ENV_NAME + "_DDQN18.png")
+                # Makes sure theres no overlap
+                plt.tight_layout()
+
+                fig.savefig("./save_graph/" + str(learning_rate) + NOTE + desired_env + "_DDQN18.png")
                 plt.close(fig)
 
-                #plot_model(agent.model, to_file=('./' + NOTE + ENV_NAME + 'model.png'), show_shapes= True)
+                # plot_model(agent.model, to_file=('./' + NOTE + ENV_NAME + 'model.png'), show_shapes= True)
 
-                print(" | Episode:", e, " | Score:", score, " | Memory Length:", len(agent.memory), "/", agent.memory.maxlen,
-                      " | Epsilon:", agent.epsilon, " | Reward Given:", reward, " | Env Max Score:", env_max_score,
+                print(" | Episode:", e, " | Score:", score, " | Memory Length:", len(agent.memory), "/",
+                      agent.memory.maxlen,
+                      " | Epsilon:", agent.epsilon, " | Reward Given:", reward, " | Env Max Score:",
+                      env_max_score,
                       " | Training starts in:", agent.train_start, " |")
 
                 # If the mean of scores of last 10 episode is bigger than 490
                 # Stop training ~ Commented for now to get more data
-                #if np.mean(scores[-min(10, len(scores)):]) == env_max_score and agent.train:
-                    #sys.exit()
+                # if np.mean(scores[-min(10, len(scores)):]) == env_max_score and agent.train:
+                # sys.exit()
 
                 # Save the last episodes
                 if e > EPISODES - 11:
-                    env = gym.wrappers.Monitor(env, "./tmp/" + ENV_NAME, force=True, video_callable = None, resume = True)
+                    env = gym.wrappers.Monitor(env, "./tmp/" + desired_env, force=True,
+                                               video_callable=None, resume=True)
 
                 # Greedy DQN
                 if (score >= max_score and agent.train):
                     print("Now we save the better model")
                     max_score = score
-                    agent.save_model("./save_model/" + NOTE + ENV_NAME + "_DDQN18.h5")
-
-
+                    agent.save_model(
+                        "./save_model/" + str(learning_rate) + NOTE + desired_env + "_DDQN18.h5")
 
 def env_max_score(ENV_NAME):
     if ENV_NAME == "CartPole-v0":
@@ -282,16 +290,30 @@ if __name__ == "__main__":
     config.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
     from keras import backend as K
+
     K.set_session(sess)
 
-    # In case of CartPole-v1, you can play until 500 time step
-    env = gym.make(ENV_NAME)
-    # Get size of state and action from environment
-    state_size = env.observation_space.shape[0]
-    action_size = env.action_space.n
+    # Creates an argparse to get the env name needs to add parser for train or not
+    # parser = argparse.ArgumentParser(description='Gives args for the code')
+    # parser.add_argument('-e', '--env', help='Tells what env to run', required=True)
+    # parser.add_argument('-lr', '--learning_rate', help='Tells the lr for the env', required=True)
+    # args = vars(parser.parse_args())
 
-    max_score = env_max_score(ENV_NAME)
+    env_col = ['CartPole-v0', 'CartPole-v1', 'MountainCar-v0', 'Acrobot-v1', 'LunarLander-v2']
+    lr_col = [0.0001, 5e-5, 0.001, 0.005, 0.0005, 1e-5]
+    for desired_env in env_col:
+        for learning_rate in lr_col:
+            # In case of CartPole-v1, you can play until 500 time step
+            # env = gym.make(args['env'])
+            env = gym.make(desired_env)
+            # Get size of state and action from environment
+            state_size = env.observation_space.shape[0]
+            action_size = env.action_space.n
+            # gets the env max score
+            # max_score = env_max_score(args['env'])
+            max_score = env_max_score(desired_env)
 
-    agent = DoubleDQNAgent(state_size, action_size)
+            # agent = DoubleDQNAgent(state_size, action_size, args['learning_rate'])
+            agent = DoubleDQNAgent(state_size, action_size, learning_rate)
 
-    playGame(env, agent, max_score)
+            playGame(env, agent, max_score, desired_env, learning_rate)
