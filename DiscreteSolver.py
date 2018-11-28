@@ -164,6 +164,7 @@ class DoubleDQNAgent:
 def playGame(env, agent, env_max_score, desired_env, learning_rate):
     # Variables for plotting
     scores, episodes, action_list, memory_list, marker, desired_score = [], [], [], [], [], []
+    mean_score = deque(maxlen= 100)
     # Variable for saving the model
     max_score = -999
 
@@ -219,6 +220,7 @@ def playGame(env, agent, env_max_score, desired_env, learning_rate):
 
                 # Every episode, plot the play time
                 scores.append(score)
+                mean_score.append(score)
                 episodes.append(e)
                 action_list.append(action)
                 memory_list.append(len(agent.memory))
@@ -226,19 +228,22 @@ def playGame(env, agent, env_max_score, desired_env, learning_rate):
                 desired_score.append(env_max_score)
 
                 fig = plt.figure()  # creates the figure
-                ax1 = fig.add_subplot(3, 1, 1)  # creates the subplots
-                ax2 = fig.add_subplot(3, 1, 2)
-                ax3 = fig.add_subplot(3, 1, 3)
+                ax1 = fig.add_subplot(4, 1, 1)  # creates the subplots
+                ax2 = fig.add_subplot(4, 1, 2)
+                ax3 = fig.add_subplot(4, 1, 3)
+                ax4 = figure.add_subplot(4,1,4)
 
                 ax1.plot(episodes, scores, 'b-', lw=0.5)  # plots the agent score
                 ax1.plot(episodes, desired_score, 'g-', lw=0.4)
                 ax2.scatter(episodes, action_list, facecolor='blue', cmap=plt.cm.get_cmap("winter"),
                             alpha=0.15)
                 ax3.scatter(episodes, scores, facecolor='blue', alpha=0.15)
+                ax4.plot(episodes, np.mean(mean_score), 'g-', lw=0.4)
 
                 ax1.title.set_text('Episode score')
                 ax2.title.set_text('Last action taken by episode')
                 ax3.title.set_text('Episode Score')
+                ax4.title.set_text('Last 100 episodes mean score')
 
                 # Makes sure theres no overlap
                 plt.tight_layout()
@@ -299,21 +304,25 @@ if __name__ == "__main__":
     # parser.add_argument('-lr', '--learning_rate', help='Tells the lr for the env', required=True)
     # args = vars(parser.parse_args())
 
-    env_col = ['CartPole-v0', 'CartPole-v1', 'MountainCar-v0', 'Acrobot-v1', 'LunarLander-v2']
-    lr_col = [0.0001, 5e-5, 0.001, 0.005, 0.0005, 1e-5]
-    for desired_env in env_col:
-        for learning_rate in lr_col:
-            # In case of CartPole-v1, you can play until 500 time step
-            # env = gym.make(args['env'])
-            env = gym.make(desired_env)
-            # Get size of state and action from environment
-            state_size = env.observation_space.shape[0]
-            action_size = env.action_space.n
-            # gets the env max score
-            # max_score = env_max_score(args['env'])
-            max_score = env_max_score(desired_env)
+    # Rodar a partir do CartPole-v1
+    #env_col = ['CartPole-v0', 'CartPole-v1', 'MountainCar-v0', 'Acrobot-v1', 'LunarLander-v2']
+    #env_col = ['CartPole-v1', 'MountainCar-v0', 'Acrobot-v1', 'LunarLander-v2']
+    desired_env = 'LunarLander-v2'
+    #lr_col = [0.0001, 5e-5, 0.001, 0.005, 0.0005, 1e-5]
+    lr_col = [5e-5, 0.001, 0.005, 0.0005, 1e-5]
+    #for desired_env in env_col:
+    for learning_rate in lr_col:
+        # In case of CartPole-v1, you can play until 500 time step
+        # env = gym.make(args['env'])
+        env = gym.make(desired_env)
+        # Get size of state and action from environment
+        state_size = env.observation_space.shape[0]
+        action_size = env.action_space.n
+        # gets the env max score
+        # max_score = env_max_score(args['env'])
+        max_score = env_max_score(desired_env)
 
-            # agent = DoubleDQNAgent(state_size, action_size, args['learning_rate'])
-            agent = DoubleDQNAgent(state_size, action_size, learning_rate)
+        # agent = DoubleDQNAgent(state_size, action_size, args['learning_rate'])
+        agent = DoubleDQNAgent(state_size, action_size, learning_rate)
 
-            playGame(env, agent, max_score, desired_env, learning_rate)
+        playGame(env, agent, max_score, desired_env, learning_rate)
