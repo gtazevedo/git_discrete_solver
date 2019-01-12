@@ -41,15 +41,17 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # Run in loop:
-    max_episodes = 3000
+    max_episodes = 2000
     hidden_layer = 50  # Original was 24 and 50 has a good score
     hidden_layer2 = 50
+    #note = "_Opt_Adam_2HL_50_50_Reward_Clipped_withBonus_Ep_3k_Replay_actionX40k_Train_actionX5k"
+    note = 'exponencial_growth_testing'
     # list of all desired envs
     #env_col = ['CartPole-v0', 'CartPole-v1', 'MountainCar-v0', 'Acrobot-v1', 'LunarLander-v2']
     desired_env = 'CartPole-v0'
     # list of all desired lr
-    #lr_col = [0.0001, 5e-5, 0.001, 0.005, 0.0005, 1e-5]
-    lr_col = [0.005, 0.0005]
+    lr_col = [0.0001, 5e-5, 0.001, 0.005, 0.0005, 1e-5]
+    #lr_col = [0.005, 0.0005]
     #for desired_env in env_col:
     for learning_rate in lr_col:
         # In case of CartPole-v1, you can play until 500 time step
@@ -65,4 +67,4 @@ if __name__ == "__main__":
         # agent = DoubleDQNAgent(state_size, action_size, args['learning_rate'])
         agent = DoubleDQNAgent(state_size, action_size, learning_rate, hidden_layer, hidden_layer2)
 
-        playGame(env, agent, max_score, desired_env, learning_rate, max_episodes, state_size)
+        playGame(env, agent, max_score, desired_env, learning_rate, max_episodes, state_size, note)

@@ -2,6 +2,7 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.models import Sequential
 from collections import deque
+import numpy as np
 import random
 
 
@@ -27,9 +28,9 @@ class DoubleDQNAgent:
         self.epsilon_decay = 0.999
         self.epsilon_min = 1e-6
         self.batch_size = 64
-        self.train_start = action_size * 5000  # when will we start training, maybe some higher numbers. Default is 1000
+        self.train_start = action_size ** action_size * 250  # when will we start training, maybe some higher numbers. Default is 1000
         # Create replay memory using deque
-        self.memory = deque(maxlen=action_size * 40000)  # 2000 is default. Try some higher numbers
+        self.memory = deque(maxlen=action_size ** action_size * 750)  # 2000 is default. Try some higher numbers
 
         # Create main model and target model
         self.model = self.build_model()
