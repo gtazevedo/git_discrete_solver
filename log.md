@@ -6,10 +6,10 @@ Deseja-se fazer:
 - [ ] Testar o RMSPropOptimizer como otimizador
 - [ ] Testar learning rate decrescente
 - [ ] Tentar fazer um colormap de episódios x steps
-- [ ] Separar as funções em arquivos diferentes
-- [ ] Isolar as funções de gráfico
+- [x] Separar as funções em arquivos diferentes
+- [x] Isolar as funções de gráfico
 - [ ] Implementar este código para visão computacional por análise de pixels(?)
-- [ ] Para o gráfico implementar dois vetores, um que adiciona 0 para valores antes do treinamento e outro que adiciona 0 para valores depois do treinamento e ambos não plotam valores zerados. Outra opção é fazer esta diferença para o caso de objetivo atingido ou não
+- [x] Para o gráfico implementar dois vetores, um que adiciona 0 para valores antes do treinamento e outro que adiciona 0 para valores depois do treinamento e ambos não plotam valores zerados. Outra opção é fazer esta diferença para o caso de objetivo atingido ou não
 - [ ] Rodar o CartPole-v0 com os pesos salvos do CartPole-v1 e vice versa e observar o desempenho
 - [x] Adicionar um gráfico com a pontuação média dos ultimos 100 episódios. Fazer isso criando um deque de 100 unidades
 
