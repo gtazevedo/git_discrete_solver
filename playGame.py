@@ -72,7 +72,7 @@ def playGame(env, agent, env_max_score, desired_env, learning_rate, max_episodes
                 episodes.append(e)
                 #action_list.append(action)
                 memory_list.append(len(agent.memory))
-                desired_score.append(env_max_score)
+                desired_score.append(sol_score)
                 mean_score.append(np.mean(last_100_scores))
                 if len(agent.memory) < agent.train_start:
                     train_done.append(0)
@@ -84,10 +84,10 @@ def playGame(env, agent, env_max_score, desired_env, learning_rate, max_episodes
                 # Every episode, plot the play time
                 #graph_plotter(episodes, scores, desired_score, action_list, mean_score, learning_rate, note, desired_env)
                 multicolor_plotter(episodes, scores, desired_score, train_done, mean_score, learning_rate, note, desired_env, inverse_train_done)
-                # plot_model(agent.model, to_file=('./' + NOTE + ENV_NAME + 'model.png'), show_shapes= True)
+                # plot_model(agent.model, to_file=('./' + note + desired_env + 'model.png'), show_shapes= True)
 
-                print(" | Episode:", e, " | Score:", score, "/", env_max_score, " | Memory Length:", len(agent.memory),
-                      "/", agent.memory.maxlen, " | Epsilon:", round(agent.epsilon,3), " | Reward Given:", reward,
+                print(" | ", desired_env, " | Episode:", e, " | Score:", score, "/", env_max_score, " | Memory Length:", len(agent.memory),
+                      "/", agent.memory.maxlen, "(", agent.train_start, ")", " | Epsilon:", round(agent.epsilon,3), " | Reward Given:", reward,
                       " | Mean Score:",  round(np.mean(last_100_scores),3), "/", sol_score,  " |")
 
                 # If the mean of scores of last 100 episodes is the solution score
@@ -97,9 +97,9 @@ def playGame(env, agent, env_max_score, desired_env, learning_rate, max_episodes
                     #sys.exit()
 
                 # Save the last episodes
-                if e > max_episodes - 11:
-                    env = gym.wrappers.Monitor(env, "./tmp/" + str(learning_rate) + desired_env, force=True,
-                                               video_callable=None, resume=True)
+                #if e > max_episodes - 11:
+                    #env = gym.wrappers.Monitor(env, "./tmp/" + str(learning_rate) + desired_env, force=True,
+                                               #video_callable=None, resume=True)
 
                 # Greedy DQN
                 if (score >= max_score and agent.train):

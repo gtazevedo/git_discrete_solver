@@ -73,16 +73,21 @@ def multicolor_plotter(episodes, scores, desired_score, train_done, mean_score, 
 
 
     # These plots are after training has started
-    ax3.scatter(episodes_train, scores_train, facecolor='blue', alpha=0.15)  # plots the agent score
-    ax3.plot(episodes_train, mean_score_train, linestyle = '-', color = 'red', lw=0.4)  # plots the mean score of the last 100 eposides
+    ax3.scatter(episodes_train, scores_train, facecolor='blue', alpha=0.15,
+                label = 'Score while training')  # plots the agent score
+    ax3.plot(episodes_train, mean_score_train, linestyle = '-', color = 'red', lw=0.4,
+             label = 'Mean score while training')  # plots the mean score of the last 100 eposides
 
     # These plots are before training has started
-    ax3.scatter(episodes_pre_train, scores_pre_train, facecolor='magenta', alpha=0.15)  # plots the agent score
-    ax3.plot(episodes_pre_train, mean_score_pre_train, linestyle = '-', color = 'cyan', lw=0.4)  # plots the mean score of the last 100 eposides
+    ax3.scatter(episodes_pre_train, scores_pre_train, facecolor='magenta', alpha=0.15,
+                label = 'Score before training')  # plots the agent score
+    ax3.plot(episodes_pre_train, mean_score_pre_train, linestyle = '-', color = 'cyan', lw=0.4,
+             label = 'Mean score before training')  # plots the mean score of the last 100 eposides
 
     # This color doesnt matter if pre or pos training started since it only shows the goal
-    ax3.plot(episodes, desired_score, 'g-', lw=0.4)  # plots the desired score in each env
+    ax3.plot(episodes, desired_score, 'g-', lw=0.4, label = 'Desired mean score')  # plots the desired score in each env
 
+    ax3.legend(loc='best', fontsize = 'small')
 
     ax3.title.set_text('Episode Score')
 

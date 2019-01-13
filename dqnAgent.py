@@ -30,7 +30,7 @@ class DoubleDQNAgent:
         self.batch_size = 64
         self.train_start = action_size ** action_size * 250  # when will we start training, maybe some higher numbers. Default is 1000
         # Create replay memory using deque
-        self.memory = deque(maxlen=action_size ** action_size * 750)  # 2000 is default. Try some higher numbers
+        self.memory = deque(maxlen=int(action_size ** action_size * 750 ))  # 2000 is default. Try some higher numbers
 
         # Create main model and target model
         self.model = self.build_model()

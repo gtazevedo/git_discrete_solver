@@ -51,8 +51,9 @@ if __name__ == "__main__":
     env_col = ['CartPole-v0', 'CartPole-v1', 'MountainCar-v0', 'Acrobot-v1', 'LunarLander-v2']
     #desired_env = 'CartPole-v0'
     # list of all desired lr
-    lr_col = [0.0001, 5e-5, 0.001, 0.005, 0.0005, 1e-5]
-    #lr_col = [0.005, 0.0005]
+    #lr_col = [0.0001, 5e-5, 0.001, 0.005, 0.0005, 1e-5]
+    #lr_col = [0.00001, 0.0001, 0.001, 0.01]
+    lr_col = [0.0001, 0.001, 0.01]
     for desired_env in env_col:
         for learning_rate in lr_col:
             # In case of CartPole-v1, you can play until 500 time step
