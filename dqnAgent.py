@@ -5,6 +5,11 @@ from collections import deque
 import numpy as np
 import random
 from livelossplot.keras import PlotLossesCallback
+from memory import Memory
+import math
+
+# Ref
+# https://github.com/rlcode/reinforcement-learning/blob/master/2-cartpole/1-dqn/cartpole_only_per.py
 
 
 class DoubleDQNAgent:
@@ -29,9 +34,10 @@ class DoubleDQNAgent:
         self.epsilon_decay = 0.999
         self.epsilon_min = 1e-6
         self.batch_size = 64
-        self.train_start = action_size ** action_size * 250  # when will we start training, maybe some higher numbers. Default is 1000
+        self.train_start = action_size ** action_size * 500  # when will we start training, maybe some higher numbers. Default is 1000
         # Create replay memory using deque
-        self.memory = deque(maxlen=int(action_size ** action_size * 750 ))  # 2000 is default. Try some higher numbers
+        self.memory_size = int(action_size ** action_size * 750)
+        self.memory = Memory(self.memory_size)
 
         # Create main model and target model
         self.model = self.build_model()
@@ -39,7 +45,7 @@ class DoubleDQNAgent:
 
         # Initialize target model so that the parameters of model and target model are the same
         self.update_target_model()
-        self.t # creates a time variable to use in learning rate decay
+        self.t = 1# creates a time variable to use in learning rate decay
 
     # Aproximate Q function using Neural Network
     # State is input and Q value of each action is output of the network
@@ -52,8 +58,9 @@ class DoubleDQNAgent:
         model.add(Dense(self.action_size, activation='linear', kernel_initializer='he_uniform'))
         model.summary()
         # Probably use decay = self.learning_rate/root(t) or just /root(t)
-        optimizer = Adam(lr=self.learning_rate, decay = self.learning_rate/1000,amsgrad= False)  # try Adamax, Adam and Nadam
-        model.compile(loss='mse', optimizer=optimizer)
+        optimizer = Adam(lr=self.learning_rate,amsgrad= True)  # try Adamax, Adam and Nadam
+        # try logcosh loss
+        model.compile(loss='mse', optimizer=optimizer, metrics=['accuracy', 'mean_squared_error'])
         return model
 
     # Updates the target model to be the same as the model
@@ -68,6 +75,21 @@ class DoubleDQNAgent:
             q_value = self.model.predict(state)
             return np.argmax(q_value[0])
 
+    def append_sample(self, state, action, reward, next_state, done):
+        if self.epsilon ==  1:
+            done = True
+
+        target = self.model.predict([state])
+        old_val = target[0][action]
+        target_val = self.target_model.predict([next_state])
+        if done:
+            target[0][action] = reward
+        else:
+            target[0][action] = reward + self.discount_factor*(np.amax(target_val[0]))
+        error = abs(old_val - target[0][action])
+
+        self.memory.add(error, (state, action, reward, next_state, done))
+
     # Save sample <s, a, r, s'> to the replay memory
     def replay_memory(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -76,37 +98,40 @@ class DoubleDQNAgent:
 
     # Pick random samples from the replay memory
     def train_model(self):
-        if len(self.memory) < self.train_start:
-            # If you don't have enough samples, just return
-            return
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
 
-        batch_size = min(self.batch_size, len(self.memory))
-        # Takes random samples from the memory to train on
-        minibatch = random.sample(self.memory, batch_size)
+        mini_batch = self.memory.sample(self.batch_size)
 
-        # Now we do the experience replay
-        state, action, reward, next_state, is_terminal = zip(*minibatch)
-        state = np.concatenate(state)
-        next_state = np.concatenate(next_state)
+        errors = np.zeros(self.batch_size)
+        states = np.zeros((self.batch_size, self.state_size))
+        next_states = np.zeros((self.batch_size, self.state_size))
+        actions, rewards, dones = [],[],[]
 
-        target = self.model.predict(state)
-        target_next = self.model.predict(state)
-        target_val = self.target_model.predict(next_state)
+        for i in range(self.batch_size):
+            states[i] = mini_batch[i][1][0]
+            actions.append(mini_batch[i][1][1])
+            rewards.append(mini_batch[i][1][2])
+            next_states[i] = mini_batch[i][1][3]
+            dones.append(mini_batch[i][1][4])
 
-        # Like Q learning, get maximum Q value at s' but from target model
-        for i in range(batch_size):
-            if is_terminal[i]:
-                target[i][action[i]] = reward[i]
+        target = self.model.predict(states)
+        target_val = self.target_model.predict(next_states)
+
+        for i in range(self.batch_size):
+            old_val = target[i][actions[i]]
+            if dones[i]:
+                target[i][actions[i]] = rewards[i]
             else:
-                # The key point of Double DQN selection of action is from the model
-                # The update is from the target model
-                a = np.argmax(target_next[i])
-                target[i][action[i]] = reward[i] + self.discount_factor * (target_val[i][a])
-                self.t += self.t
+                target[i][actions[i]] = rewards[i] + self.discount_factor * np.amax(target_val[i])
 
-        # Choose the option to use the train_on_batch or fit function, should be the same
-        # self.model.fit(state, target, batch_size=self.batch_size, epochs=1, verbose=0)
-        self.model.train_on_batch(state, target, callbacks=[PlotLossesCallback()])
+            errors[i]  = abs(old_val - target_val[i][actions[i]])
+
+        for i in range(self.batch_size):
+            idx = mini_batch[i][0]
+            self.memory.update(idx, errors[i])
+
+        self.model.train_on_batch(states, target)#, callbacks=[PlotLossesCallback()])
 
     # Load the saved model
     def load_model(self, name):
@@ -115,3 +140,6 @@ class DoubleDQNAgent:
     # Save the model which is under training
     def save_model(self, name):
         self.model.save_weights(name)
+
+    def update_step(self, step):
+        self.t = step

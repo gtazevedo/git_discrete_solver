@@ -6,9 +6,10 @@ sys.path.insert(0, '/home/moony/PycharmProjects/CartPole/CartPole')
 import matplotlib.pyplot as plt
 from auxFuncs import graph_plotter
 from auxFuncs import multicolor_plotter
+from livelossplot.keras import PlotLossesCallback
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Run the env ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def playGame(env, agent, env_max_score, desired_env, learning_rate, max_episodes, state_size, note, sol_score):
+def playGame(env, agent, env_max_score, desired_env, learning_rate, max_episodes, state_size, note, sol_score, step):
     # Variables for plotting
     scores, episodes, action_list, memory_list, desired_score, mean_score, train_done, inverse_train_done = \
         [], [], [], [], [], [], [], []
@@ -33,6 +34,10 @@ def playGame(env, agent, env_max_score, desired_env, learning_rate, max_episodes
             if agent.render:
                 env.render()
 
+            step += 1
+
+            agent.update_step(step)
+
             # get action for the current state and go one step in environment
             action = agent.get_action(state)
             next_state, reward, done, info = env.step(action)
@@ -53,10 +58,11 @@ def playGame(env, agent, env_max_score, desired_env, learning_rate, max_episodes
             reward = np.clip(reward, -1, 1)  # Trying this
 
             # Save the sample <s, a, r, s'> to the replay memory
-            agent.replay_memory(state, action, reward, next_state, done)
+            agent.append_sample(state, action, reward, next_state, done)
             # Every time step do the training if we are training
-            if (agent.train):
+            if step >= agent.train_start:
                 agent.train_model()
+
             score += reward
             state = next_state
 
@@ -71,10 +77,10 @@ def playGame(env, agent, env_max_score, desired_env, learning_rate, max_episodes
                 last_100_scores.append(score)
                 episodes.append(e)
                 #action_list.append(action)
-                memory_list.append(len(agent.memory))
+
                 desired_score.append(sol_score)
                 mean_score.append(np.mean(last_100_scores))
-                if len(agent.memory) < agent.train_start:
+                if step < agent.train_start:#len(agent.memory) < agent.train_start:
                     train_done.append(0)
                     inverse_train_done.append(1)
                 else:
@@ -84,10 +90,11 @@ def playGame(env, agent, env_max_score, desired_env, learning_rate, max_episodes
                 # Every episode, plot the play time
                 #graph_plotter(episodes, scores, desired_score, action_list, mean_score, learning_rate, note, desired_env)
                 multicolor_plotter(episodes, scores, desired_score, train_done, mean_score, learning_rate, note, desired_env, inverse_train_done)
+                plot_losses = PlotLossesCallback()
                 # plot_model(agent.model, to_file=('./' + note + desired_env + 'model.png'), show_shapes= True)
 
-                print(" | ", desired_env, " | Episode:", e, " | Score:", score, "/", env_max_score, " | Memory Length:", len(agent.memory),
-                      "/", agent.memory.maxlen, "(", agent.train_start, ")", " | Epsilon:", round(agent.epsilon,3), " | Reward Given:", reward,
+                print(" | ", desired_env, " | Episode:", e, " | Score:", score, "/", env_max_score, " | Step:", (step),
+                      "/", agent.train_start, " | Epsilon:", round(agent.epsilon,3), " | Reward Given:", reward,
                       " | Mean Score:",  round(np.mean(last_100_scores),3), "/", sol_score,  " |")
 
                 # If the mean of scores of last 100 episodes is the solution score

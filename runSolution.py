@@ -18,6 +18,8 @@
 # https://github.com/Seraphli/YADQN/blob/master/code/openai/LunarLander-v2/Experiment_5/evaluation.py <- Great code reference for monitor
 # https://medium.freecodecamp.org/improvements-in-deep-q-learning-dueling-double-dqn-prioritized-experience-replay-and-fixed-58b130cc5682
 
+# Implemented live plot
+# https://github.com/stared/livelossplot/
 
 # Try implementing this here to learn the hyperparamter
 # https://github.com/fdiazgon/pbt-keras
@@ -33,7 +35,9 @@ from auxFuncs import env_max_score
 from auxFuncs import env_sol_score
 import gym
 import tensorflow as tf
-#from livelossplot.keras import PlotLossesCallback
+from keras.datasets import mnist
+from keras.utils import to_categorical
+from livelossplot.keras import PlotLossesCallback
 
 if __name__ == "__main__":
     # Tensorflow GPU optimization
@@ -54,15 +58,16 @@ if __name__ == "__main__":
     max_episodes = 2000
     hidden_layer = 50  # Original was 24 and 50 has a good score
     hidden_layer2 = 50
+    step = 0
     #note = "_Opt_Adam_2HL_50_50_Reward_Clipped_withBonus_Ep_3k_Replay_actionX40k_Train_actionX5k"
-    note = 'exponencial_growth_testing_decay_lr_1k'
+    note = 'exponencial_growth_testing_amsgrad_'
     # list of all desired envs
     env_col = ['CartPole-v0', 'CartPole-v1', 'MountainCar-v0', 'Acrobot-v1', 'LunarLander-v2']
-    #env_col = ['MountainCar-v0', 'Acrobot-v1', 'LunarLander-v2']
+    env_col = ['MountainCar-v0', 'Acrobot-v1', 'LunarLander-v2']
     # list of all desired lr
     #lr_col = [0.0001, 5e-5, 0.001, 0.005, 0.0005, 1e-5]
-    #lr_col = [0.00001, 0.0001, 0.001, 0.01]
-    lr_col = [0.0001, 0.001, 0.01]
+    lr_col = [0.00001, 0.0001, 0.001, 0.01]
+    #lr_col = [0.0001, 0.001, 0.01]
     for desired_env in env_col:
         for learning_rate in lr_col:
             # In case of CartPole-v1, you can play until 500 time step
@@ -80,4 +85,4 @@ if __name__ == "__main__":
             #True to train. False to run
             agent = DoubleDQNAgent(state_size, action_size, learning_rate, hidden_layer, hidden_layer2, True)
 
-            playGame(env, agent, max_score, desired_env, learning_rate, max_episodes, state_size, note, sol_score)
+            playGame(env, agent, max_score, desired_env, learning_rate, max_episodes, state_size, note, sol_score, step)
