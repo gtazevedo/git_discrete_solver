@@ -7,9 +7,9 @@ import random
 
 
 class DoubleDQNAgent:
-    def __init__(self, state_size, action_size, learning_rate, hidden_layer, hidden_layer2):
+    def __init__(self, state_size, action_size, learning_rate, hidden_layer, hidden_layer2, trainfactor):
         # If the network is already trained, set to False
-        self.train = True
+        self.train = trainfactor
         # If its desired to see the env animation, set to True
         self.render = False
         # Get size of state and action
@@ -49,7 +49,7 @@ class DoubleDQNAgent:
         model.add(Dense(self.hidden_layer, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(self.action_size, activation='linear', kernel_initializer='he_uniform'))
         model.summary()
-        optimizer = Adam(lr=self.learning_rate)  # try Adamax, Adam and Nadam
+        optimizer = Adam(lr=self.learning_rate, decay = self.learning_rate/1000,amsgrad= False)  # try Adamax, Adam and Nadam
         model.compile(loss='mse', optimizer=optimizer)
         return model
 
