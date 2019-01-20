@@ -33,7 +33,7 @@ from auxFuncs import env_max_score
 from auxFuncs import env_sol_score
 import gym
 import tensorflow as tf
-
+#from livelossplot.keras import PlotLossesCallback
 
 if __name__ == "__main__":
     # Tensorflow GPU optimization

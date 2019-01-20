@@ -4,6 +4,7 @@ from keras.models import Sequential
 from collections import deque
 import numpy as np
 import random
+from livelossplot.keras import PlotLossesCallback
 
 
 class DoubleDQNAgent:
@@ -38,6 +39,7 @@ class DoubleDQNAgent:
 
         # Initialize target model so that the parameters of model and target model are the same
         self.update_target_model()
+        self.t # creates a time variable to use in learning rate decay
 
     # Aproximate Q function using Neural Network
     # State is input and Q value of each action is output of the network
@@ -49,6 +51,7 @@ class DoubleDQNAgent:
         model.add(Dense(self.hidden_layer, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(self.action_size, activation='linear', kernel_initializer='he_uniform'))
         model.summary()
+        # Probably use decay = self.learning_rate/root(t) or just /root(t)
         optimizer = Adam(lr=self.learning_rate, decay = self.learning_rate/1000,amsgrad= False)  # try Adamax, Adam and Nadam
         model.compile(loss='mse', optimizer=optimizer)
         return model
@@ -99,10 +102,11 @@ class DoubleDQNAgent:
                 # The update is from the target model
                 a = np.argmax(target_next[i])
                 target[i][action[i]] = reward[i] + self.discount_factor * (target_val[i][a])
+                self.t += self.t
 
         # Choose the option to use the train_on_batch or fit function, should be the same
         # self.model.fit(state, target, batch_size=self.batch_size, epochs=1, verbose=0)
-        self.model.train_on_batch(state, target)
+        self.model.train_on_batch(state, target, callbacks=[PlotLossesCallback()])
 
     # Load the saved model
     def load_model(self, name):
