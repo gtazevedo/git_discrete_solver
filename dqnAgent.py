@@ -13,7 +13,8 @@ import math
 
 
 class DoubleDQNAgent:
-    def __init__(self, state_size, action_size, learning_rate, hidden_layer, hidden_layer2, trainfactor):
+    def __init__(self, state_size, action_size, learning_rate, hidden_layer, hidden_layer2,
+                 trainfactor, use_decay, use_amsgrad):
         # If the network is already trained, set to False
         self.train = trainfactor
         # If its desired to see the env animation, set to True
@@ -35,6 +36,9 @@ class DoubleDQNAgent:
         self.epsilon_min = 1e-6
         self.batch_size = 64
         self.train_start = action_size ** action_size * 500  # when will we start training, maybe some higher numbers. Default is 1000
+        self.use_amsgrad = use_amsgrad
+        self.use_decay = use_decay
+        self.t = 1# creates a time variable to use in learning rate decay
         # Create replay memory using deque
         self.memory_size = int(action_size ** action_size * 750)
         self.memory = Memory(self.memory_size)
@@ -43,9 +47,10 @@ class DoubleDQNAgent:
         self.model = self.build_model()
         self.target_model = self.build_model()
 
+
+
         # Initialize target model so that the parameters of model and target model are the same
         self.update_target_model()
-        self.t = 1# creates a time variable to use in learning rate decay
 
     # Aproximate Q function using Neural Network
     # State is input and Q value of each action is output of the network
@@ -58,7 +63,12 @@ class DoubleDQNAgent:
         model.add(Dense(self.action_size, activation='linear', kernel_initializer='he_uniform'))
         model.summary()
         # Probably use decay = self.learning_rate/root(t) or just /root(t)
-        optimizer = Adam(lr=self.learning_rate,amsgrad= True)  # try Adamax, Adam and Nadam
+        if(self.use_decay):
+            optimizer = Adam(lr=self.learning_rate, decay= self
+                             .learning_rate /math.sqrt(self.t),
+                             amsgrad= self.use_amsgrad)  # try Adamax, Adam and Nadam
+        else:
+            optimizer = Adam(lr=self.learning_rate,amsgrad= self.use_amsgrad)  # try Adamax, Adam and Nadam
         # try logcosh loss
         model.compile(loss='mse', optimizer=optimizer, metrics=['accuracy', 'mean_squared_error'])
         return model
